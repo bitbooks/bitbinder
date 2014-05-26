@@ -9,25 +9,30 @@ gem "middleman", "~> 3.3.2"
 gem "middleman-syntax"
 gem "redcarpet"
 
-# Live-reloading plugin
-gem "middleman-livereload", "~> 3.1.0"
-
 # For title-casing things
-gem "middleman-navtree", path: "/Users/bryan.braun/Code/bryanbraun/middleman-navtree"
+gem "middleman-navtree"
 gem "titleize", "~> 1.3.0"
-gem "middleman-linkswap", path: "/Users/bryan.braun/Code/bryanbraun/middleman-linkswap"
-
+gem "middleman-bitbooks", path: "vendor/gems/middleman-bitbooks"
 
 # For faster file watcher updates on Windows:
 gem "wdm", "~> 0.1.0", :platforms => [:mswin, :mingw]
 
-# For debugging
-gem "pry"
-gem "pry-remote"
-gem 'pry-debugger'
-gem "pry-doc"
+group :development do
+  gem "middleman-livereload", "~> 3.1.0"
+  # For debugging
+  gem "pry", :require => true
+  gem "pry-remote", :require => true
+  gem 'pry-debugger', :require => true
+  gem "pry-doc"
+end
 
 # Cross-templating language block fix for Ruby 1.8
 platforms :mri_18 do
   gem "ruby18_source_location"
 end
+
+# Gems Required for Bitbooks builds. Not to be included in the Open source
+# Franklin Project.
+gem "sinatra"
+gem "octokit"
+gem "attr_encrypted"

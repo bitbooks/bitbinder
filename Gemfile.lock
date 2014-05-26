@@ -1,26 +1,22 @@
 PATH
-  remote: /Users/bryan.braun/Code/bryanbraun/middleman-linkswap
+  remote: vendor/gems/middleman-bitbooks
   specs:
-    middleman-linkswap (0.0.1)
+    middleman-bitbooks (0.0.1)
       middleman-core (>= 3.3.2)
       sprockets (>= 2.12.1)
-
-PATH
-  remote: /Users/bryan.braun/Code/bryanbraun/middleman-navtree
-  specs:
-    middleman-navtree (0.1.1)
-      middleman-core (~> 3.3)
-      titleize (~> 1.3)
 
 GEM
   remote: http://rubygems.org/
   specs:
-    activesupport (4.0.4)
+    activesupport (4.0.5)
       i18n (~> 0.6, >= 0.6.9)
       minitest (~> 4.2)
       multi_json (~> 1.3)
       thread_safe (~> 0.1)
       tzinfo (~> 0.3.37)
+    addressable (2.3.6)
+    attr_encrypted (1.3.2)
+      encryptor (>= 1.3.0)
     chunky_png (1.3.0)
     coderay (1.1.0)
     coffee-script (2.2.0)
@@ -43,9 +39,12 @@ GEM
     em-websocket (0.5.0)
       eventmachine (>= 0.12.9)
       http_parser.rb (~> 0.5.3)
+    encryptor (1.3.0)
     erubis (2.7.0)
     eventmachine (1.0.3)
     execjs (2.0.2)
+    faraday (0.9.0)
+      multipart-post (>= 1.2, < 3)
     ffi (1.9.3)
     fssm (0.2.10)
     haml (4.0.5)
@@ -90,6 +89,9 @@ GEM
       middleman-core (>= 3.0.2)
       multi_json (~> 1.0)
       rack-livereload
+    middleman-navtree (0.1.2)
+      middleman-core (~> 3.3)
+      titleize (~> 1.3)
     middleman-sprockets (3.3.3)
       middleman-core (>= 3.2)
       sprockets (~> 2.2)
@@ -99,12 +101,15 @@ GEM
       middleman-core (~> 3.2)
       rouge (~> 1.0)
     minitest (4.7.5)
-    multi_json (1.9.2)
-    padrino-helpers (0.12.1)
+    multi_json (1.10.1)
+    multipart-post (2.0.0)
+    octokit (3.1.0)
+      sawyer (~> 0.5.3)
+    padrino-helpers (0.12.2)
       i18n (~> 0.6, >= 0.6.7)
-      padrino-support (= 0.12.1)
+      padrino-support (= 0.12.2)
       tilt (~> 1.4.1)
-    padrino-support (0.12.1)
+    padrino-support (0.12.2)
       activesupport (>= 3.1)
     pry (0.9.12.6)
       coderay (~> 1.0)
@@ -122,10 +127,12 @@ GEM
     rack (1.5.2)
     rack-livereload (0.3.15)
       rack
+    rack-protection (1.5.3)
+      rack
     rack-test (0.6.2)
       rack (>= 1.0)
     rb-fsevent (0.9.4)
-    rb-inotify (0.9.3)
+    rb-inotify (0.9.4)
       ffi (>= 0.5.0)
     rb-kqueue (0.2.2)
       ffi (>= 0.5.0)
@@ -133,6 +140,13 @@ GEM
     rouge (1.3.3)
     ruby18_source_location (0.2)
     sass (3.2.19)
+    sawyer (0.5.4)
+      addressable (~> 2.3.5)
+      faraday (~> 0.8, < 0.10)
+    sinatra (1.4.5)
+      rack (~> 1.4)
+      rack-protection (~> 1.4)
+      tilt (~> 1.3, >= 1.3.4)
     slop (3.5.0)
     sprockets (2.12.1)
       hike (~> 1.2)
@@ -149,7 +163,7 @@ GEM
     tilt (1.4.1)
     titleize (1.3.0)
     tzinfo (0.3.39)
-    uber (0.0.4)
+    uber (0.0.6)
     uglifier (2.5.0)
       execjs (>= 0.3.0)
       json (>= 1.8.0)
@@ -159,16 +173,19 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  attr_encrypted
   middleman (~> 3.3.2)
-  middleman-linkswap!
+  middleman-bitbooks!
   middleman-livereload (~> 3.1.0)
-  middleman-navtree!
+  middleman-navtree
   middleman-syntax
+  octokit
   pry
   pry-debugger
   pry-doc
   pry-remote
   redcarpet
   ruby18_source_location
+  sinatra
   titleize (~> 1.3.0)
   wdm (~> 0.1.0)
