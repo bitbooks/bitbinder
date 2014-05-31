@@ -12,22 +12,23 @@
     <title><%= discover_page_title %></title>
 
     <!-- Styles and fonts -->
-    <%= stylesheet_link_tag "all/all" %>
-    <%= stylesheet_link_tag "all/syntax" %>
-    <%= stylesheet_link_tag "epsilon/epsilon" %>
-    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700|Noticia+Text:400,400italic,700,700italic&subset=latin,latin-ext,vietnamese' rel='stylesheet' type='text/css'>
+    <%= stylesheet_link_tag "themes/glide/stylesheets/glide" %>
+    <%= stylesheet_link_tag "themes/glide/stylesheets/syntax" %>
+    <link href='http://fonts.googleapis.com/css?family=Bree+Serif&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
-    <%= javascript_include_tag  "all/modernizr" %>
+    <%= javascript_include_tag  "themes/glide/javascripts/modernizr" %>
   </head>
 
-  <body class="<%= page_classes %> epsilon">
+  <body class="<%= page_classes %> glide">
     <div class="page-wrapper">
 
-      <a id="menu-toggle" class="menu-toggle" href="#sidr"><span class="bitcon-list"></span><span class="menu-toggle-text">Toggle Menu</span></a>
+      <!--[if lt IE 7]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+
       <header class="page-header" role="banner">
-        <%# @todo: only link to the index page if there is an index.md file %>
         <% link_to_if_exists '/index.html', :class => "invisilink" do %>
           <% if ['index.html'].include? current_page.path %>
             <h1 class="book-title"><%= data.book.title %></h1>
@@ -35,14 +36,10 @@
             <span class="book-title"><%= data.book.title %></span>
           <% end %>
         <% end %>
-        <span class="book-author">by <%= data.book.author %></span>
+        <span class="book-author visuallyhidden">by <%= data.book.author %></span>
       </header>
 
         <div class="content-wrapper clearfix">
-
-          <!--[if lt IE 7]>
-              <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-          <![endif]-->
 
           <section class="main-content" role="main">
             <div class="main-content-source">
@@ -56,7 +53,7 @@
             </nav>
           </section>
 
-          <aside id="sidr" class="aside-content" role="complementary">
+          <aside class="aside-content" role="complementary">
             <div class="aside-wrapper">
 
               <div class="block table-of-contents">
@@ -67,21 +64,7 @@
                   </ul>
                 </nav>
               </div>
-
-              <div class="block open-source">
-                <h3>This book is open source</h3>
-                <p>The source of this book is <a href="<%= data.book.github_url %>">hosted on Github</a>. Go, ahead. Check it out.</p>
-              </div>
-
               <!--
-              <div class="block downloads">
-                <h3>Downloads</h3>
-                <p>Download this book in 
-                    <a href="#">PDF</a>, <a href="#">mobi</a>, and <a href="#">epub</a>
-                  form for free.
-                </p>
-              </div>
-
               <div class="block translations">
                 <h3>Book translations</h3>
                 <p>This book is translated into 
@@ -90,31 +73,45 @@
                   You can help with more translations <a href="<%= data.book.github_url %>">on Github</a>.
                 </p>
               </div>
-
-              <div class="block license">
-                <h3>License</h3>
-                <p>This book is licensed under the <a href="<%= data.book.license_url %>"><%= data.book.license_name %></a> license.</p>
-              </div>
               -->
-
             </div><!-- end aside-wrapper -->
           </aside>
 
         </div><!-- end content-wrapper -->
 
       <footer class="page-footer">
+
         <div class="footer-wrapper">
+          <!--
+          <div class="block downloads">&nbsp;
+            <h3>Downloads</h3>
+            <p>Download this book in
+                <a href="#">PDF</a>, <a href="#">mobi</a>, and <a href="#">epub</a>
+              form for free.
+            </p>
+          </div>
+          -->
+          <div class="block license">
+            <h3>License</h3>
+            <p>This book is licensed under the <a href="<%= data.book.license_url %>"><%= data.book.license_name %></a> license.</p>
+          </div>
+
+          <div class="block open-source">
+            <h3>This book is open source</h3>
+            <p>The source of this book is <a href="<%= data.book.github_url %>">hosted on Github</a>. Go, ahead. Check it out.</p>
+          </div>
+
           <small class="small-text">Made with <a href="http://bitbooks.cc">Bitbooks</a></small>
+
         </div><!-- end footer-wrapper -->
+
       </footer>
+
 
     </div><!-- end page-wrapper -->
 
     <!-- include scripts just before the close of the body tag -->
-    <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-    <%= javascript_include_tag "epsilon/epsilon" %>
-    <%= javascript_include_tag "epsilon/jquery.sidr.min" %>
-    <%= javascript_include_tag "all/anchor.min" %>
-    <%= javascript_include_tag "all/all" %>
+    <%= javascript_include_tag "themes/glide/javascripts/anchor.min" %>
+    <%= javascript_include_tag "themes/glide/javascripts/glide" %>
   </body>
 </html>

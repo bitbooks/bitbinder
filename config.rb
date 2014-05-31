@@ -1,8 +1,6 @@
 require 'middleman-navtree'
 require 'middleman-bitbooks'
-
-# Disable layout on the sitemap page.
-page "/sitemap.xml", :layout => false
+activate :linkswap # From the middleman-bitbooks gem
 
 ###
 # Helpers
@@ -36,7 +34,6 @@ helpers do
     end
   end
 
-
   # A helper that wraps link_to, and tests to see if a provided link exists in
   # the sitemap. Used for page titles.
   def link_to_if_exists(*args, &block)
@@ -56,17 +53,26 @@ end
 # To be honest, I can't see what this is really doing.
 set :relative_links, true
 
-# @todo: Consider fixing it so a site build will contain assets from other themes
-set :layouts_dir, 'layouts/' + data.book.theme.downcase
-
-set :css_dir, 'stylesheets'
-set :js_dir, 'javascript'
+# Configuration For Themes
+set :layouts_dir, 'themes/' + data.book.theme.downcase + '/layouts'
+set :css_dir, 'themes/' + data.book.theme.downcase + '/stylesheets'
+set :js_dir, 'themes/' + data.book.theme.downcase + '/javascripts'
 set :images_dir, 'images'
 set :source, 'source-temp' # Change this to "source" for local testing.
 # set :source, 'source'
 
-# Pretty URLs. For more info, see http://middlemanapp.com/pretty-urls/
-# activate :directory_indexes
+# Ignore all themes assest from build, except our selected theme.
+ignore(/themes\/(?!#{data.book.theme.downcase}).*/)
+# Ignore all theme layouts from the sitemap (prevents SystemStackError).
+# See also: https://github.com/middleman/middleman/issues/1243
+config.ignored_sitemap_matchers[:layout] = proc { |file|
+  file.start_with?(File.join(config.source, 'layout.')) || file.start_with?(File.join(config.source, 'layouts/')) || !!(file =~ /themes\/.*\/layouts\//)
+}
+
+# Disable layout on the sitemap page.
+page "/sitemap.xml", :layout => false
+
+# ?
 set :trailing_slash, 'false'
 
 # Define settings for syntax highlighting. We want to mimic Github Flavored
@@ -77,14 +83,13 @@ set :markdown_engine, :redcarpet
 set :markdown, :fenced_code_blocks => true, :smartypants => true
 
 activate :relative_assets # Relative assets are important for publishing on Github.
-activate :linkswap # From the middleman-bitbooks gem
 activate :navtree do |options|
   options.source_dir = settings.source
   options.data_file = 'data/tree.yml'
   options.ignore_files = ['readme.md', 'README.md', 'readme.txt', 'license.md', 'CNAME', 'robots.txt', 'humans.txt', '404.md']
   # All the config directories are automatically added. These ones are guesses at
   # what book authors might name folders containing assets.
-  options.ignore_dir = ['img', 'image', 'pictures', 'pics', 'layouts']
+  options.ignore_dir = ['img', 'image', 'pictures', 'pics', 'themes']
   # @todo: You cannot promote two files with the same name, because they can't have the same key
   #        on the same level in the same hash. I should decide whether I care. One option is to pass
   #        in full filepaths (or do this with a hash, similar to how I did with the tree).
@@ -93,6 +98,11 @@ activate :navtree do |options|
   options.ext_whitelist = ['.md', '.markdown', '.mkd']
 end
 
+# Notes
+#
+# We leave :directory_indexes inactive, so internal markdown links between pages
+# will not break.
+# activate :directory_indexes
 
 # Build-specific configuration
 configure :build do
@@ -108,4 +118,3 @@ configure :build do
   # Or use a different image path
   # set :http_prefix, "/Content/images/"
 end
-
