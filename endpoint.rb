@@ -35,7 +35,7 @@ module Builder
       @datahash = JSON.parse(params[:data])
       encryptedtoken = @datahash.delete("token")
       @token = Encryptor.decrypt(Base64.decode64(encryptedtoken), :key => SECRET_KEY)
-      IO.write(data_path, YAML::dump(@datahash))
+      IO.write(book_data_path, YAML::dump(@datahash))
 
       perform_build if github.scopes.include?("public_repo") || github.scopes.include?("repo")
       status 200
@@ -63,6 +63,8 @@ module Builder
       ensure
         FileUtils.rm_rf build_path
         FileUtils.rm_rf temp_source_path
+        FileUtils.rm_rf book_data_path
+        FileUtils.rm_rf navtree_data_path
       end
     end
 
@@ -96,15 +98,15 @@ module Builder
     def clone_and_push
       if repo_exists?
         # This is a double-check because it's already checked once before the job is queued.
-        # However, this check keeps the job idempotent... which is imporatnat.
+        # However, this check keeps the job idempotent... which is important.
         # @todo: This is crude error reporting. Determine the best way to do this in for production.
         Open3.capture2 "echo", "Could not copy the repo, because the destination repository already exists."
       else
         FileUtils.rm_rf repo_path # Not sure why I need this, but it existed in copy-to.
         Dir.chdir root
         begin
-          # @todo: pass in the "website" paramter, so it points to github pages.
-          github.create_repository "starter-book" # Create empty repo on github.
+          options = { :description => "An online book.", :homepage => link_to_book }
+          github.create_repository "starter-book", options # Create empty repo on github.
           Open3.capture2 "git", "clone", "--quiet", "#{destination.scheme}://#{destination.host}/bitbooks/starter-book.git", repo_path
           Dir.chdir repo_path
           Open3.capture2 "git", "remote", "add", "downstream", destination_remote
@@ -129,10 +131,20 @@ module Builder
       "#{destination.scheme}://#{@token}:x-oauth-basic@#{destination.host}/#{@datahash['gh_full_name']}.git"
     end
 
+    def link_to_book
+      # If a custom domain hasn't been specified, return the default github url.
+      if @datahash['domain'].nil? || @datahash['domain'].empty?
+        @datahash['github_pages_url']
+      else
+        # A custom domain has been specified, which we want to return instead.
+        return 'http://' + Rack::Utils.escape_html(@datahash['domain'])
+      end
+    end
+
     # This is the main function for interfacing with the Github API. Unfortunately,
     # I had to make it more verbose in order to handle unauthorize errors (using
     # validate_credentials()... the rescue block just didn't seem to work). Maybe
-    # some day I can get it back to the simplicity of "app_client" below it.
+    # some day I can get it back to the simplicity the older one.
     def github
       client_object_exists = (defined?(@github) != nil)
       if client_object_exists
@@ -166,8 +178,12 @@ module Builder
       @build_path ||= File.expand_path "./build", root
     end
 
-    def data_path
-      @data_path ||= File.expand_path "./data/book.yml", root
+    def book_data_path
+      @book_data_path ||= File.expand_path "./data/book.yml", root
+    end
+
+    def navtree_data_path
+      @navtree_data_path ||= File.expand_path "./data/tree.yml", root
     end
 
     def source_path
