@@ -79,7 +79,7 @@ module Builder
 
     def middleman_build
       Dir.chdir root
-      Open3.capture2 "middleman", "build"
+      Open3.capture2 "bundle", "exec", "middleman", "build"
     end
 
     def push_up

@@ -29,7 +29,7 @@ helpers do
     elsif match = page.render({:layout => false}).match(/<h.+>(.*?)<\/h1>/)
       return match[1]
     else
-      filename = page.url.split(/\//).last.titleize
+      filename = page.url.split(/\//).last.titleize.gsub('%20', ' ')
       return filename.chomp(File.extname(filename))
     end
   end
@@ -85,14 +85,11 @@ set :markdown, :fenced_code_blocks => true, :smartypants => true
 activate :relative_assets # Relative assets are important for publishing on Github.
 activate :navtree do |options|
   options.source_dir = settings.source
-  options.data_file = 'data/tree.yml'
+  options.data_file = 'tree.yml' # This is the default value but it doesn't hurt to be explicit
   options.ignore_files = ['readme.md', 'README.md', 'readme.txt', 'license.md', 'CNAME', 'robots.txt', 'humans.txt', '404.md']
-  # All the config directories are automatically added. These ones are guesses at
+  # All the config directories are automatically ignored. These ones are guesses at
   # what book authors might name folders containing assets.
   options.ignore_dir = ['img', 'image', 'pictures', 'pics', 'themes']
-  # @todo: You cannot promote two files with the same name, because they can't have the same key
-  #        on the same level in the same hash. I should decide whether I care. One option is to pass
-  #        in full filepaths (or do this with a hash, similar to how I did with the tree).
   options.promote_files = ['index.md']
   options.home_title = 'Front Page'
   options.ext_whitelist = ['.md', '.markdown', '.mkd']
