@@ -3,7 +3,7 @@
 #
 # Turn on the endpoint by running the file:
 #
-#   rackup
+#   bundle exec rackup
 #
 # This file should not be included in the Open Source Franklin project.
 # Can this be part of my Bitbooks Gem somehow (in order to separate from
@@ -97,20 +97,22 @@ module Builder
 
     def clone_and_push
       if repo_exists?
-        # This is a double-check because it's already checked once before the job is queued.
+        # (prevents creating a new destination repo when one already exists)
+        # This is a double-check because it's already checked when the name is chosen.
         # However, this check keeps the job idempotent... which is important.
         # @todo: This is crude error reporting. Determine the best way to do this in for production.
         Open3.capture2 "echo", "Could not copy the repo, because the destination repository already exists."
+        halt 400
       else
         FileUtils.rm_rf repo_path # Not sure why I need this, but it existed in copy-to.
         Dir.chdir root
         begin
           options = { :description => "An online book.", :homepage => link_to_book }
-          github.create_repository "starter-book", options # Create empty repo on github.
+          github.create_repository @datahash['gh_full_name'].split('/')[1], options # Create empty repo on github.
           Open3.capture2 "git", "clone", "--quiet", "#{destination.scheme}://#{destination.host}/bitbooks/starter-book.git", repo_path
           Dir.chdir repo_path
           Open3.capture2 "git", "remote", "add", "downstream", destination_remote
-          Open3.capture2 "git", "push", "downstream", 'master'
+          Open3.capture2 "git", "push", "downstream", "master"
         ensure
           FileUtils.rm_rf repo_path
         end
