@@ -27,5 +27,5 @@ end
 # Gems Required for Bitbooks builds. Not to be included in the Open source
 # Franklin Project.
 gem "sinatra"
-gem "octokit"
+gem "octokit", path: "vendor/gems/octokit.rb" # Change this to the public version once my issue is closed: https://github.com/octokit/octokit.rb/pull/485
 gem "attr_encrypted"

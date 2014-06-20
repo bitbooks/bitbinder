@@ -46,8 +46,11 @@ module Builder
       encryptedtoken = @datahash.delete("token")
       @token = Encryptor.decrypt(Base64.decode64(encryptedtoken), :key => SECRET_KEY)
 
-      clone_and_push if github.scopes.include?("public_repo") || github.scopes.include?("repo")
-      status 200
+      repo = clone_and_push if github.scopes.include?("public_repo") || github.scopes.include?("repo")
+
+      # Return information about the repo we created via json.
+      content_type :json
+      repo.to_hash.to_json
     end
 
     get '/' do
@@ -73,7 +76,7 @@ module Builder
       FileUtils.cp_r source_path, temp_source_path
       Dir.chdir temp_source_path
       Open3.capture2 "git", "init"
-      Open3.capture2 "git", "remote", "add", "downstream", "#{destination.scheme}://#{destination.host}/#{@datahash['gh_full_name']}.git"
+      Open3.capture2 "git", "remote", "add", "downstream", "#{destination.scheme}://#{destination.host}/#{full_name}.git"
       Open3.capture2 "git", "pull", "--quiet", "downstream", "master"
     end
 
@@ -108,21 +111,28 @@ module Builder
         Dir.chdir root
         begin
           options = { :description => "An online book.", :homepage => link_to_book }
-          github.create_repository @datahash['gh_full_name'].split('/')[1], options # Create empty repo on github.
+          repo_info = github.create_repository full_name.split('/')[1], options # Create empty repo on github.
           Open3.capture2 "git", "clone", "--quiet", "#{destination.scheme}://#{destination.host}/bitbooks/starter-book.git", repo_path
           Dir.chdir repo_path
           Open3.capture2 "git", "remote", "add", "downstream", destination_remote
           Open3.capture2 "git", "push", "downstream", "master"
         ensure
+          Dir.chdir root # We need to move out of the folder we are deleting or we'll get errors trying to use pry.
           FileUtils.rm_rf repo_path
         end
+        return repo_info if defined?(repo_info) != nil
       end
     end
 
     def repo_exists?
-      github.repository @datahash['gh_full_name']
-    rescue Octokit::NotFound
-      false
+      if @datahash['repo_id'] != nil
+        return github.repository? @datahash['repo_id']
+      elsif @datahash['gh_full_name'] != nil
+        return github.repository? @datahash['gh_full_name']
+      else
+        # Could not determine if repo exists. This shouldn't ever happen.
+        return nil
+      end
     end
 
     def destination
@@ -130,16 +140,16 @@ module Builder
     end
 
     def destination_remote
-      "#{destination.scheme}://#{@token}:x-oauth-basic@#{destination.host}/#{@datahash['gh_full_name']}.git"
+      "#{destination.scheme}://#{@token}:x-oauth-basic@#{destination.host}/#{full_name}.git"
     end
 
+    # Prevent malformed URL from being used. @todo: we may be able to delete this.
     def link_to_book
       # If a custom domain hasn't been specified, return the default github url.
       if @datahash['domain'].nil? || @datahash['domain'].empty?
-        @datahash['github_pages_url']
+        ''
       else
-        # A custom domain has been specified, which we want to return instead.
-        return 'http://' + Rack::Utils.escape_html(@datahash['domain'])
+        @datahash['domain']
       end
     end
 
@@ -169,6 +179,17 @@ module Builder
 
     def root
       @root ||= File.expand_path File.dirname(__FILE__)
+    end
+
+    def full_name
+      if @datahash['repo_id'] != nil
+        return github.repository(@datahash['repo_id']).full_name
+      elsif @datahash['gh_full_name'] != nil
+        return @datahash['gh_full_name']
+      else
+        # Could not determine the full_name. This shouldn't ever happen.
+        nil
+      end
     end
 
     # For copy-to
