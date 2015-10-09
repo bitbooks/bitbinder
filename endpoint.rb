@@ -1,13 +1,5 @@
-# This is a tiny sinatra application, who's only job is to create an
-# endpoint for other services to trigger a middleman build.
-#
-# Turn on the endpoint by running the file:
-#
-#   bundle exec rackup
-#
-# This file should not be included in the Open Source Franklin project.
-# Can this be part of my Bitbooks Gem somehow (in order to separate from
-# Franklin)? Possibly.
+# This is the main file. A simple Sinatra app that exposes endpoints for triggering middleman builds.
+
 require 'sinatra'
 require 'json'
 require 'yaml'
